@@ -1,0 +1,146 @@
+SELECT * from authors,titles,publishers,title_authors,royalties;
+
+SELECT * from titles;
+
+SELECT * from publishers;
+
+SELECT * from title_authors;
+
+SELECT * from royalties;
+
+SELECT * from authors
+    WHERE au_lname like 'H%';
+
+SELECT title_name,type,price,pubdate
+    FROM titles
+WHERE pubdate between '7/15/2014' and '8/15/2014';
+
+select * from titles where title_id = 'T01' or title_id = 'T04' or title_id = 'T07';/* use in instead of equal and or*/
+
+SELECT * from authors 
+    ORDER BY state ASC, city ASC;
+
+SELECT title_name,price 
+    FROM titles 
+WHERE price >20;
+
+SELECT title_name, pages
+    FROM titles 
+WHERE sales<5000;
+/*8*/
+SELECT title_name from titles inner join publishers using(pub_id)
+where pub_name = 'Core Dump Books';
+
+SELECT title_name from titles inner join publishers using(pub_id)
+where pub_name != 'Core Dump Books';
+
+SELECT DISTINCT type from titles;
+
+SELECT DISTINCT pub_name from titles inner join publishers using(pub_id)
+WHERE pubdate between '8/01/2014' and '8/31/2014'; /* can specify month and year they are built in */
+
+Select DISTINCT au_lname,au_fname 
+FROM authors inner join title_authors using(au_id)
+inner join titles using(title_id)
+inner join publishers using(pub_id)
+WHERE authors.state = publishers.state;
+
+Select DISTINCT au_lname,au_fname 
+FROM authors inner join title_authors using(au_id)
+inner join titles using(title_id)
+inner join publishers using(pub_id)
+WHERE authors.state != publishers.state;
+
+/*One publisher is in Germany. That is why the authors do not add up
+*/
+
+Select DISTINCT au_lname,au_fname
+FROM authors inner join title_authors using(au_id)
+inner join titles using(title_id)
+WHERE type = 'history';
+
+Select DISTINCT  pub_name from publishers inner join titles using(pub_id)
+where title_name like 'E%'; /* % is a wildcard. This says anything that starts if it surrounds anything 
+with E. and yes it is case sensitive */
+
+Select title_name, au_fname, au_lname 
+FROM authors inner join title_authors using(au_id)
+inner join titles using(title_id)
+inner join publishers using(pub_id)
+where pub_name = 'Schadenfreude Press';
+/*15*/
+
+/*16*/
+Select au_lname,au_fname,title_name,advance 
+from authors inner join title_authors using(au_id) 
+inner join titles using(title_id)
+right outer join royalties using(title_id);
+
+/*17 can't use title because each publisher publishes different books*/
+Select pub_name,COUNT(pub_id) 
+AS "Books Published"
+FROM titles inner join publishers using(pub_id)
+Group by pub_name;
+
+/*18*/
+Select pub_name,COUNT(pub_id) 
+AS "Books Published"
+FROM titles inner join publishers using(pub_id)
+Group by pub_name
+Having Count(pub_id)>2;
+
+/*19 can't include title*/
+Select MAX
+
+/*20*/
+Select AVG(royalty_rate) from royalties;
+
+/*21*/
+Select title_name,royalty_rate*sales as "Total Royalties" 
+FROM titles inner join royalties using(title_id);
+
+/*22*/
+Select sum((advance+royalty_rate*price*sales)*royalty_share) as "Total Paid Out"
+FROM authors inner join title_authors using(au_id)
+inner join titles using(title_id)
+inner join royalties using(title_id);
+
+/*23*/
+Select distinct state, count(au_id) as "Author Amount" 
+From authors
+Group by state;
+
+/*24*/
+Select au_lname, count(au_lname) as Books_Written
+From authors inner join title_authors using(au_id)
+inner join titles using(title_id)
+group by au_lname
+order by books_written desc;
+
+(advance) AS "Highest Advance"
+From royalties;
+
+/*20*/
+Select AVG(royalty_rate) from royalties;
+
+/*21*/
+Select title_name,royalty_rate*sales as "Total Royalties" 
+FROM titles inner join royalties using(title_id);
+
+/*22*/
+Select sum((advance+royalty_rate*price*sales)*royalty_share) as "Total Paid Out"
+FROM authors inner join title_authors using(au_id)
+inner join titles using(title_id)
+inner join royalties using(title_id);
+
+/*23*/
+Select distinct state, count(au_id) as "Author Amount" 
+From authors
+Group by state;
+
+/*24*/
+Select au_lname, count(au_lname) as Books_Written
+From authors inner join title_authors using(au_id)
+inner join titles using(title_id)
+group by au_lname
+order by books_written desc;
