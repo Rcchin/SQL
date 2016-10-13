@@ -118,5 +118,8 @@ inner join titles using(title_id)
 group by au_lname
 order by books_written desc;
 
+/* Example of using join on  select owners.name as owner, pets.name as pet, pets.animal 
+     from owners join pets on (pets.owners_id = owners.owners_id); */
+
 
 
