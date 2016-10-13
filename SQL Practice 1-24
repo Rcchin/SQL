@@ -90,34 +90,7 @@ Group by pub_name
 Having Count(pub_id)>2;
 
 /*19 can't include title*/
-Select MAX
-
-/*20*/
-Select AVG(royalty_rate) from royalties;
-
-/*21*/
-Select title_name,royalty_rate*sales as "Total Royalties" 
-FROM titles inner join royalties using(title_id);
-
-/*22*/
-Select sum((advance+royalty_rate*price*sales)*royalty_share) as "Total Paid Out"
-FROM authors inner join title_authors using(au_id)
-inner join titles using(title_id)
-inner join royalties using(title_id);
-
-/*23*/
-Select distinct state, count(au_id) as "Author Amount" 
-From authors
-Group by state;
-
-/*24*/
-Select au_lname, count(au_lname) as Books_Written
-From authors inner join title_authors using(au_id)
-inner join titles using(title_id)
-group by au_lname
-order by books_written desc;
-
-(advance) AS "Highest Advance"
+Select MAX(advance) AS "Highest Advance"
 From royalties;
 
 /*20*/
@@ -144,3 +117,6 @@ From authors inner join title_authors using(au_id)
 inner join titles using(title_id)
 group by au_lname
 order by books_written desc;
+
+
+
