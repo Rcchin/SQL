@@ -1,0 +1,31 @@
+
+
+Select distinct au_lname,au_fname,pub_name,count(pub_id) as "Books Published", mod(count(pub_id),2)!= 0 as "Odd?"
+from authors inner join title_authors using(au_id)
+inner join titles using(title_id)
+inner join publishers using(pub_id)
+group by au_lname,au_fname,pub_name
+having mod(count(pub_id),2)!=0
+order by au_lname,au_fname;
+
+Select title_name, count(au_id) as "Number of Authors" from title_authors
+inner join titles using(title_id)
+group by title_name
+order by count(au_id) desc, title_name ASC;
+
+Select au_lname, au_fname, count(title_id) as "Books Written"
+from authors inner join title_authors using(au_id)
+group by au_lname,au_fname
+having count(title_id)>3;
+
+Select DISTINCT au_lname,au_fname 
+FROM authors inner join title_authors using(au_id)
+inner join titles using(title_id)
+inner join publishers using(pub_id)
+WHERE authors.state = publishers.state
+order by au_lname,au_fname;
+
+Select * from publishers 
+Where upper(pub_name) like '%PR%';
+
+
