@@ -1,3 +1,4 @@
+/*These tables were made to use witht the JDBC*/
 CREATE TABLE WritingGroups
   (
   GroupName    VARCHAR(20)     NOT NULL,
