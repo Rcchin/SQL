@@ -1,0 +1,113 @@
+// Some code from my Database class. We were basically using Java to do some SQL statements. This is not all of it but the code I was
+// responsible for. Also there should be a menu to organize which is not included here.
+
+/*Entering a new Publisher*/
+//This inserts a new Publisher into the database.
+//Then it updates the Book table to replace a Publisher with the new one.
+            sqlInsert = "Insert into Publishers (pub_name)Values(?)";
+            Scanner userInput = new Scanner(System.in);
+            
+            System.out.println("Enter a new publisher name"); 
+            PreparedStatement newPub = conn.prepareStatement(sqlInsert);
+            newPubName = userInput.nextLine();
+            newPub.setString(1, newPubName);
+            newPub.executeUpdate();
+            
+            
+            /*Replacing for Books*/
+            sqlChange = "Update Book set pub_name = ? where pub_name = ?";
+            
+            System.out.println("What Publisher Name would you like to replace with the new one?");
+            userI = userInput.nextLine();
+            PreparedStatement changePub = conn.prepareStatement(sqlChange);
+            changePub.setString(1, newPubName);
+            changePub.setString(2, userI);
+            changePub.executeUpdate();
+            //This is used for input validation to make sure the publisher is in the database
+            PreparedStatement pstmt = conn.prepareStatement("Select * from Publishers where pub_name = ?");
+            pstmt.setString(1,userI);
+            rs =pstmt.executeQuery();
+            
+            //Input Validation will keep looping if the Publisher entered is not in the database.
+             while (rs.next() == false)
+                        {
+                             System.out.println("This publisher you are looking for is not in the database");
+                             System.out.println("Please try again: ");
+                             userI = userInput.nextLine();
+                             pstmt.setString(1, userI);
+                             rs = pstmt.executeQuery();
+                             changePub.setString(2, userI);
+                             changePub.executeUpdate();
+                        }
+------------------------------------------------------------------------------------------------------------------------------------
+
+Inserting a book
+ //Inserts a new book into the database.
+ //The code also makes sure the Publisher and WritingGroup exist or are in the database before use. 
+         
+                    String update = "INSERT INTO Book(title_name, pub_name, GroupName, pub_year, pages) VALUES (?, ?, ?, ?, ?)";
+                    String pubCheck = "Select * From Publishers where pub_name = ?";
+                    String groupCheck = "Select * from WritingGroups where GroupName = ?";
+                    PreparedStatement pstmt;
+                    String s = null;
+                
+                    pstmt = conn.prepareStatement(update);
+            
+                    //opens scanner
+                    Scanner scan = new Scanner(System.in);
+                    System.out.print("Enter Book Title: ");
+                    s = scan.nextLine();
+                    pstmt.setString(1, s);
+                     
+                    
+                    System.out.print("Enter Publisher Name: ");
+                    s = scan.nextLine();
+                    pstmt.setString(2, s);
+                    
+                    //Used to validate the Publisher
+                    PreparedStatement check1 = conn.prepareStatement(pubCheck);
+                    check1.setString(1,s);
+                    rs = check1.executeQuery();
+                    
+                   
+                    //Input Validation for Publisher
+                    while (rs.next() == false)
+                        {
+                             System.out.println("Invalid publisher.");
+                             System.out.println("Please try again: ");
+                             s = scan.nextLine();
+                             pstmt.setString(2, s);
+                             check1.setString(1,s);
+                             rs = check1.executeQuery();
+                            
+                        }
+        
+                    System.out.print("Enter Group Name: ");
+                    s = scan.nextLine();
+                    pstmt.setString(3, s);
+                    
+                    //Used to validate groupCheck
+                    PreparedStatement check2 = conn.prepareStatement(groupCheck);
+                    check2.setString(1,s);
+                    rs = check2.executeQuery();
+                    
+                    Input Validation for WritingGroup
+                    while (rs.next() == false)
+                        {
+                             System.out.println("Invalid writing group.");
+                             System.out.println("Please try again: ");
+                             s = scan.nextLine();
+                             pstmt.setString(3, s);
+                             check2.setString(1,s);
+                             rs = check2.executeQuery();
+                             
+                        }
+                    System.out.print("Enter Year Published: ");
+                    s = scan.nextLine();
+                    pstmt.setString(4, s);
+                    System.out.print("Enter Number of Pages: ");
+                    s = scan.nextLine();
+                    pstmt.setString(5, s);
+                    pstmt.executeUpdate();
+
+
