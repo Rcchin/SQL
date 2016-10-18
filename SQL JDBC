@@ -1,35 +1,339 @@
-// Some code from my Database class. We were basically using Java to do some SQL statements. This is not all of it but the code I was
-// responsible for. Also there should be a menu to organize which is not included here.
+import java.sql.*;
+import java.util.Scanner;
 
-/*Entering a new Publisher*/
-//This inserts a new Publisher into the database.
-//Then it updates the Book table to replace a Publisher with the new one.
-            sqlInsert = "Insert into Publishers (pub_name)Values(?)";
-            Scanner userInput = new Scanner(System.in);
+/**
+ *
+ * @authors Ky Tran and Raymond Chin
+ */
+public class CECS323JavaTermProject {
+    //  Database credentials
+    static String USER;
+    static String PASS;
+    static String DBNAME;
+    //This is the specification for the printout that I'm doing:
+    //each % denotes the start of a new field.
+    //The - denotes left justification.
+    //The number indicates how wide to make the field.
+    //The "s" denotes that it's a string.  All of our output in this test are 
+    //strings, but that won't always be the case.
+    static final String displayFormat="%-5s%-15s%-15s%-15s\n";
+// JDBC driver name and database URL
+    static final String JDBC_DRIVER = "org.apache.derby.jdbc.ClientDriver";
+    static String DB_URL = "jdbc:derby://localhost:1527/";
+//            + "testdb;user=";
+/**
+ * Takes the input string and outputs "N/A" if the string is empty or null.
+ * @param input The string to be mapped.
+ * @return  Either the input string or "N/A" as appropriate.
+ */
+    public static String dispNull (String input) {
+        //because of short circuiting, if it's null, it never checks the length.
+        if (input == null || input.length() == 0)
+            return "N/A";
+        else
+            return input;
+    }
+    
+    public static void main(String[] args) {
+        //Prompt the user for the database name, and the credentials.
+        //If your database has no credentials, you can update this code to 
+        //remove that from the connection string.
+        Scanner in = new Scanner(System.in);
+        System.out.print("Name of the database (not the user account): ");
+        DBNAME = in.nextLine();
+        System.out.print("Database user name: ");
+        USER = in.nextLine();
+        System.out.print("Database password: ");
+        PASS = in.nextLine();
+        //Constructing the database URL connection string
+        DB_URL = DB_URL + DBNAME + ";user="+ USER + ";password=" + PASS;
+        Connection conn = null; //initialize the connection
+        Statement stmt = null;  //initialize the statement that we're using
+        ResultSet rs = null; // initiliaize result set
+        String sql;
+        String sqlInsert;
+        String sqlChange;
+        String userI;
+        try {
+            //STEP 2: Register JDBC driver
+            Class.forName("org.apache.derby.jdbc.ClientDriver");
+
+            //STEP 3: Open a connection
+            System.out.println("Connecting to database...");
+            conn = DriverManager.getConnection(DB_URL);
+
+            //STEP 4: Execute a query
+            //System.out.println("Creating statement...");
+            stmt = conn.createStatement();
+            int choice = 1;
+            //While choice is 1, menu will continue to display and prompt for user choice
+            while(choice == 1) {
+                //Display menu
+                System.out.println();
+                System.out.println("Select choice");
+                System.out.println("1. List all Writing Groups");
+                System.out.println("2. List all the data for a group specified");
+                System.out.println("3. List all publishers");
+                System.out.println("4. List all the data for a publisher specified");
+                System.out.println("5. List all book titles ");
+                System.out.println("6. List all the data for a book specified");
+                System.out.println("7. Insert a  new book");
+                System.out.println("8. Insert a new publisher and update all book published by one publisher to be\n" +
+                                       "published by the new publisher");
+                System.out.println("9. Remove a book specified by the user");
+                System.out.println("10. Exit");  
+                //users choice
+                int userChoice = in.nextInt();
+                //while user choice is out of bounds, display eror
+                while(userChoice > 10 || userChoice < 0) {
+                    System.out.println("Error! Invalid choice. Please try again");
+                    userChoice = in.nextInt();
+                }
+                //1. List all Writing Groups
+                if(userChoice == 1) {
+                     //sql statement
+                     sql = "SELECT GroupName FROM WritingGroups";
+                     rs = stmt.executeQuery(sql);
+                   
+                        while (rs.next()) {
+                        //retrive column data
+                        String groupName = rs.getString("groupName");
+                        //print info
+                        System.out.println("Group Name: "+dispNull(groupName));
+                        }
+
+                }
+                //2. List all the data for a group specified
+                else if(userChoice == 2) {
+                    Scanner chooseGroup = new Scanner(System.in);
+                    sql = "SELECT * FROM writingGroups WHERE groupName = ?";
+                    System.out.print("Enter group name that you are searching for: ");
+                    String search = chooseGroup.nextLine();
+                    //prepared statement that will be used for sql statemnt
+                    PreparedStatement pstmt = conn.prepareStatement(sql);
+                    //set search as part of sql
+                    pstmt.setString(1,search);
+                    rs = pstmt.executeQuery();
+                         
+                    while (rs.next() == false){
+                        //notify user if there is an error 
+                        //ask user to enter a valid input
+                        System.out.print("Invalid group name.Enter the group name that you would like to search for:  ");
+                        search = chooseGroup.nextLine();
+                        pstmt.setString(1, search);
+                        rs = pstmt.executeQuery();
+                    }
+
+                        pstmt.setString(1, search);
             
-            System.out.println("Enter a new publisher name"); 
-            PreparedStatement newPub = conn.prepareStatement(sqlInsert);
-            newPubName = userInput.nextLine();
-            newPub.setString(1, newPubName);
-            newPub.executeUpdate();
+                        rs = pstmt.executeQuery();
+                        while (rs.next()){
+                            //Retrieve data of columns
+                            String groupName = rs.getString("groupName");
+                            String headWriter = rs.getString("headWriter");
+                            String yearFormed = rs.getString("yearFormed");
+                            String subject = rs.getString("subject");
+              
+                            //print info
+                            System.out.printf(displayFormat,"Group Name : "+dispNull(groupName), "    HeadWriter :"+dispNull(headWriter), "    YearFormed: "+dispNull(yearFormed),"    Subject: "+dispNull(subject));
+                            }
+                }
+                //3. List all publishers
+                else if(userChoice == 3) {
+                    //sql statement
+                    sql = "SELECT pub_name FROM Publishers";
+                    rs = stmt.executeQuery(sql);
+
+;
+                        while (rs.next()) {
+                            //Retrieve column data
+                            String pub_name= rs.getString("pub_name");
+                         
+                            //Display info
+                            System.out.println("Publisher Name: "+dispNull(pub_name));
+                        }
+                }
+                //4. List all the data for a publisher specified
+                else if(userChoice == 4) {
+                    Scanner choosePub = new Scanner(System.in);
+                    sql = "SELECT * FROM Publishers WHERE pub_name = ?";
+                    System.out.print("Enter publisher name that you would like to search for: ");
+                    String search = choosePub.nextLine();
+                    //prepared statement for sql
+                    PreparedStatement pstmt = conn.prepareStatement(sql);
+                    pstmt.setString(1,search);
+                    rs = pstmt.executeQuery();
+                         
+                    while (rs.next() == false){
+                        //notify user if there is an error 
+                        //ask user to enter a valid input
+                        System.out.print("Invalid publisher. Enter the publisher name that you are looking for:  ");
+                        search = choosePub.nextLine();
+                        pstmt.setString(1, search);
+                        rs = pstmt.executeQuery();
+                    }
+                        //sets group name user entered to be part of the sql
+                        pstmt.setString(1, search);
+            
+                        rs = pstmt.executeQuery();
+                        while (rs.next()){
+                            //Retrieve data of columns
+                            String pub_name = rs.getString("pub_name");
+                            String pub_address = rs.getString("pub_address");
+                            String pub_phone = rs.getString("pub_phone");
+                            String pub_email = rs.getString("pub_email");
+              
+                            //Display info
+                            System.out.printf(displayFormat, "Publisher Name: "+dispNull(pub_name), "    Address:"+dispNull(pub_address), "    Phone: "+dispNull(pub_phone),"    Email: "+dispNull(pub_email));
+                        }
+
+                }
+                else if(userChoice == 5) {
+                    sql = "SELECT * FROM Book";
+                    rs = stmt.executeQuery(sql);
+                        // System.out.printf(displayFormat, "groupName", "headWriter", "yearFormed", "subject");
+                        while (rs.next()) {
+                        //Retrieve by column name
+                        String title_name= rs.getString("title_name");
+                        String pub_name= rs.getString("pub_name");
+                        String GroupName= rs.getString("GroupName");
+                        String pub_year= rs.getString("pub_year");
+                        String pages= rs.getString("pages");
+                         //Display values
+                        System.out.print("Book Title: " +title_name+"    ");
+                        System.out.printf(displayFormat, "Publisher Name : "+dispNull(pub_name), "    Group Name :"+dispNull(GroupName), "    Published Year: "+dispNull(pub_year),"    Pages: "+dispNull(pages));
+                        }
+                }
+                //6. List all the data for a book specified
+                else if(userChoice == 6) {
+                    Scanner chooseBook = new Scanner(System.in);
+                    sql = "SELECT * FROM Book inner join Publishers using(pub_name) inner join WritingGroups using(GroupName) WHERE title_name = ?";
+                    System.out.print("Enter book title that you would like to search for: ");
+                    String bookSearch = chooseBook.nextLine();
+                     //prepared statement used for SQL statement
+                    PreparedStatement pstmt = conn.prepareStatement(sql);
+                    //set booksearch as part of sql
+                    pstmt.setString(1,bookSearch);
+                    rs = pstmt.executeQuery();
+                         
+                    while (rs.next() == false){
+                        //notify user if there is an error 
+                        //ask user to enter a valid input
+                        System.out.print("Invalid Book. Enter the book title that you would like to search for:  ");
+                        bookSearch = chooseBook.nextLine();
+                        pstmt.setString(1, bookSearch);
+                        rs = pstmt.executeQuery();
+                    }
+                        //set user entry of book into sql statement
+                        pstmt.setString(1, bookSearch);
+            
+                        rs = pstmt.executeQuery();
+                        while (rs.next()){
+                            //Retrieve column data
+                            String title_name = rs.getString("title_name");
+                            String pub_name = rs.getString("pub_name");
+                            String GroupName = rs.getString("GroupName");
+                            String pub_year = rs.getString("pub_year");
+                            String pages = rs.getString("pages");
+              
+                            //Display info
+                            System.out.print("Book Title: " +dispNull(title_name)+"    ");
+
+                            System.out.printf(displayFormat, "Publisher Name : "+dispNull(pub_name), "    Group Name :"+dispNull(GroupName), "    Published Year: "+dispNull(pub_year),"    Pages: "+dispNull(pages));
+                        }
+                }
+                //7. Insert a  new book
+                else if(userChoice == 7) {
+                    //sql's
+                    String update = "INSERT INTO Book(title_name, pub_name, GroupName, pub_year, pages) VALUES (?, ?, ?, ?, ?)";
+                    String pubCheck = "Select * From Publishers where pub_name = ?";
+                    String groupCheck = "Select * from WritingGroups where GroupName = ?";
+                    //Prepared statement
+                    PreparedStatement pstmt;
+                    //users input
+                    String input = null;
+                
+                    pstmt = conn.prepareStatement(update);
+                    //scanner
+                    Scanner scan = new Scanner(System.in);
+                    
+                    //ask user for book title
+                    System.out.print("Enter book title: ");
+                    String bookTitle = scan.nextLine();
+                    pstmt.setString(1, bookTitle);
+                    
+                    //ask user for publisher name
+                    System.out.print("Enter publisher name: ");
+                    input = scan.nextLine();
+                    pstmt.setString(2, input);
+                    PreparedStatement check1 = conn.prepareStatement(pubCheck);
+                    check1.setString(1,input);
+                    rs = check1.executeQuery();
+
+                    while (rs.next() == false)
+                        {
+                            System.out.println("Invalid publisher.");
+                            System.out.println("Please try again: ");
+                            input = scan.nextLine();
+                            pstmt.setString(2, input);
+                            check1.setString(1,input);
+                            rs = check1.executeQuery();
+                            
+                        }
+                    //ask user for group name
+                    System.out.print("Enter group name: ");
+                    input = scan.nextLine();
+                    pstmt.setString(3, input);
+                    PreparedStatement check2 = conn.prepareStatement(groupCheck);
+                    check2.setString(1,input);
+                    rs = check2.executeQuery();
+            
+                    while (rs.next() == false)
+                        {
+                            System.out.println("Invalid writing group.");
+                            System.out.println("Please try again: ");
+                            input = scan.nextLine();
+                            pstmt.setString(3, input);
+                            check2.setString(1,input);
+                            rs = check2.executeQuery();
+                             
+                        }
+                    //ask user for year
+                    System.out.print("Enter published year: ");
+                    input = scan.nextLine();
+                    pstmt.setString(4, input);
+                    System.out.print("Enter total number of pages: ");
+                    input = scan.nextLine();
+                    pstmt.setString(5, input);
+                    pstmt.executeUpdate();
+                    System.out.println(bookTitle + " has been added!");
+                }
+                //8. Insert a new publisher and update all book published by one publisher to be 
+                //published by the new publisher
+                else if(userChoice == 8) {
+                    sqlInsert = "Insert into Publishers (pub_name)Values(?)";
+                    Scanner userInput = new Scanner(System.in);
+            
+                    System.out.println("Enter a new publisher name"); 
+                    PreparedStatement newPub = conn.prepareStatement(sqlInsert);
+                    String newPubName = userInput.nextLine();
+                    newPub.setString(1, newPubName);
+                    newPub.executeUpdate();
+            
+                    sqlChange = "Update Book set pub_name = ? where pub_name = ?";
+            
+                    System.out.println("What Publisher Name would you like to replace with the new one?");
+                    userI = userInput.nextLine();
+                    PreparedStatement changePub = conn.prepareStatement(sqlChange);
+                    changePub.setString(1, newPubName);
+                    changePub.setString(2, userI);
+                    changePub.executeUpdate();
+                    PreparedStatement pstmt = conn.prepareStatement("Select * from Publishers where pub_name = ?");
+                    pstmt.setString(1,userI);
+                    rs =pstmt.executeQuery();
             
             
-            /*Replacing for Books*/
-            sqlChange = "Update Book set pub_name = ? where pub_name = ?";
-            
-            System.out.println("What Publisher Name would you like to replace with the new one?");
-            userI = userInput.nextLine();
-            PreparedStatement changePub = conn.prepareStatement(sqlChange);
-            changePub.setString(1, newPubName);
-            changePub.setString(2, userI);
-            changePub.executeUpdate();
-            //This is used for input validation to make sure the publisher is in the database
-            PreparedStatement pstmt = conn.prepareStatement("Select * from Publishers where pub_name = ?");
-            pstmt.setString(1,userI);
-            rs =pstmt.executeQuery();
-            
-            //Input Validation will keep looping if the Publisher entered is not in the database.
-             while (rs.next() == false)
+                    while (rs.next() == false)
                         {
                              System.out.println("This publisher you are looking for is not in the database");
                              System.out.println("Please try again: ");
@@ -39,75 +343,74 @@
                              changePub.setString(2, userI);
                              changePub.executeUpdate();
                         }
-------------------------------------------------------------------------------------------------------------------------------------
+                                    System.out.println(newPubName + " has been added and updated successfully!");
 
-Inserting a book
- //Inserts a new book into the database.
- //The code also makes sure the Publisher and WritingGroup exist or are in the database before use. 
-         
-                    String update = "INSERT INTO Book(title_name, pub_name, GroupName, pub_year, pages) VALUES (?, ?, ?, ?, ?)";
-                    String pubCheck = "Select * From Publishers where pub_name = ?";
-                    String groupCheck = "Select * from WritingGroups where GroupName = ?";
-                    PreparedStatement pstmt;
-                    String s = null;
-                
-                    pstmt = conn.prepareStatement(update);
-            
-                    //opens scanner
-                    Scanner scan = new Scanner(System.in);
-                    System.out.print("Enter Book Title: ");
-                    s = scan.nextLine();
-                    pstmt.setString(1, s);
-                     
-                    
-                    System.out.print("Enter Publisher Name: ");
-                    s = scan.nextLine();
-                    pstmt.setString(2, s);
-                    
-                    //Used to validate the Publisher
-                    PreparedStatement check1 = conn.prepareStatement(pubCheck);
-                    check1.setString(1,s);
-                    rs = check1.executeQuery();
-                    
+                    }
+                //9. Remove a book specified by the user
+                else if(userChoice == 9) {
+                    Scanner userInput = new Scanner(System.in);
+                    String sqlDelete = "DELETE FROM Book where title_name = ?";
+                    System.out.print("Enter a book to remove: ");
+                    String removeBook = userInput.nextLine();
+                    PreparedStatement deleteBook = conn.prepareStatement(sqlDelete);
                    
-                    //Input Validation for Publisher
+                    
+                    PreparedStatement pstmt = conn.prepareStatement("Select * from Book where title_name = ?");
+                    pstmt.setString(1, removeBook);
+                    rs = pstmt.executeQuery();
+    
                     while (rs.next() == false)
                         {
-                             System.out.println("Invalid publisher.");
+                             System.out.println("Book is not in the database");
                              System.out.println("Please try again: ");
-                             s = scan.nextLine();
-                             pstmt.setString(2, s);
-                             check1.setString(1,s);
-                             rs = check1.executeQuery();
-                            
-                        }
-        
-                    System.out.print("Enter Group Name: ");
-                    s = scan.nextLine();
-                    pstmt.setString(3, s);
-                    
-                    //Used to validate groupCheck
-                    PreparedStatement check2 = conn.prepareStatement(groupCheck);
-                    check2.setString(1,s);
-                    rs = check2.executeQuery();
-                    
-                    Input Validation for WritingGroup
-                    while (rs.next() == false)
-                        {
-                             System.out.println("Invalid writing group.");
-                             System.out.println("Please try again: ");
-                             s = scan.nextLine();
-                             pstmt.setString(3, s);
-                             check2.setString(1,s);
-                             rs = check2.executeQuery();
+                             removeBook = userInput.nextLine();
+                             pstmt.setString(1, removeBook);
+                             rs = pstmt.executeQuery();
                              
                         }
-                    System.out.print("Enter Year Published: ");
-                    s = scan.nextLine();
-                    pstmt.setString(4, s);
-                    System.out.print("Enter Number of Pages: ");
-                    s = scan.nextLine();
-                    pstmt.setString(5, s);
-                    pstmt.executeUpdate();
+                   //pstmt.executeUpdate();
+                    deleteBook.setString(1, removeBook);
+                    deleteBook.executeUpdate();
+                    System.out.println(removeBook + " has been removed!");
+                }
+                //10. quit
+                else if(userChoice == 10) {
+                    //display quit
+                    System.out.println("You have quit!");
+                    //end loop
+                    choice = 2;
+                }
+            }
+      
+            //STEP 6: Clean-up environment
+            rs.close();
+            stmt.close();
+            conn.close();
+        } catch (SQLException se) {
+            //Handle errors for JDBC
+            se.printStackTrace();
+        } catch (Exception e) {
+            //Handle errors for Class.forName
+            e.printStackTrace();
+        } finally {
+            //finally block used to close resources
+            try {
+                if (stmt != null) {
+                    stmt.close();
+                }
+            } catch (SQLException se2) {
+            }// nothing we can do
+            try {
+                if (conn != null) {
+                    conn.close();
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }//end finally try
+        }//end try
+        System.out.println("Goodbye!");
+    }//end main
+   
 
-
+  
+}//end FirstExample}
