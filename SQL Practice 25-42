@@ -1,0 +1,142 @@
+/*25*/
+Select au_lname, au_fname from authors 
+where state = (Select state from authors where au_lname = 'Buchman'AND au_fname ='Sarah');
+
+/*26*/
+Select title_name
+FROM titles
+where pages < (Select pages from titles where title_name = 'I Blame My Mother');
+
+/*27*/
+Select title_name
+From titles inner join royalties using(title_id)
+where royalty_rate < (Select royalty_rate from royalties inner join titles using(title_id) where title_name = 'Ask Your System Administrator');
+
+/*28*/
+Select Distinct title_name,price
+from titles
+where price =(Select MIN(price) from titles);
+
+/*29*/
+Select title_name,pubdate,MONTH(pubdate) as "Month Published" from titles
+where mod(MONTH(pubdate),2)!=0
+order by Month(pubdate);
+
+/*30*/
+Select title_name, sales*price as revenue, (select avg(sales*price) from titles)
+from titles
+where abs((sales*price) - (Select avg(sales*price)from titles))<=3000000;
+
+/*31*/
+Select Distinct pub_name 
+from publishers
+inner join titles using(pub_id)
+where type = (Select type from titles where title_name = 'How About Never?');
+
+/*32 - List the authors who have published with a publisher who has published more than 3 books*/
+select distinct au_fname, au_lname from authors
+    inner join title_authors using(au_id)
+    inner join titles using (title_id)
+    where titles.pub_id in (select pub_id from titles group by pub_id having count(*) > 3);
+
+select distinct au_fname, au_lname 
+from authors inner join title_authors using(au_id)
+             inner join titles using (title_id)
+             inner join publishers using (pub_id)
+where titles.pub_id in
+    (select pub_id
+     from titles
+     group by pub_id
+     having count(pub_id) > 3);
+
+/*33 - List all city and states where we do business -- where we have authors or publishers. Identify each
+row as either an author or a publisher*/
+select city, state, 'Authors' as "Business" from authors
+UNION 
+select city, state, 'Publishers' as "Business" from publishers;
+
+/*34 -  List the states (in alphabetical order) in which we have both authors and publishers.*/
+select state from authors INTERSECT select state from publishers ORDER BY state;
+
+select DISTINCT state from publishers INTERSECT select state from authors ORDER by state;
+OR
+select state from publishers where state in (select state from authors order by state);
+
+/*35 - Find the list of all authors who have not been published*/
+select au_fname, au_lname from authors where au_id not in 
+    (select au_id from title_authors);
+
+/*36 - Find the list of all authors who have no royalties attached to any of their books*/
+select au_fname, au_lname from authors
+    inner join title_authors using(au_id)
+    left outer join titles using (title_id)
+where title_id not in (select title_id from royalties)
+union
+select au_fname, au_lname from authors
+    inner join title_authors using(au_id)
+    inner join titles using (title_id)
+    inner join royalties using (title_id)
+where royalty_rate is null;
+
+/*37 -  List the titles (in alphabetical order) of all books that were not published during 2014*/
+select title_name from titles where year(pubdate) != 2014
+UNION
+select title_name from titles where year(pubdate) is null order by title_name;
+
+select title_name from titles where year(pubdate) not in (select year(pubdate) from titles where year(pubdate) = 2014)
+union
+select title_name from titles where year(pubdate) is null order by title_name;
+
+/*38 - List the states that (in alphabetical order) in which we have authors, publishers, or both. List the
+states in alphabetical order, and indicate which it is (‘Author’, ‘Publisher’, or ‘Both’) in the output.
+If a given state is in both Authors and Publishers, list it only once, designated as ‘Both’. */
+(select state, 'Both' as "Holds" from authors 
+intersect 
+select state, 'Both' as "Holds" from publishers)
+union
+(select state, 'Authors' as "Holds" from authors 
+    where state not in (select state from authors intersect select state from publishers)
+union
+select state, 'Publisher' as "Holds" from publishers
+    where state not in (select state from authors intersect select state from publishers)
+union
+select state, 'Publisher' as "Holds" from publishers
+    where state is null);
+
+
+/*39 - List author name, and book title in which the author is the last author listed (they are lowest on
+the au_order). In other words, for a given title, if there are only three authors listed, list the third
+author and them alone.*/
+select au_fname, au_lname, title_name, au_order
+from authors inner join title_authors using (au_id)
+             inner join titles ti using (title_id)
+where au_order =
+    (select max(au_order)
+     from title_authors
+     where title_id = ti.title_id);
+
+/*40 - Display the title name, and the number of authors for that title. Order the rows from the book
+with the highest number of authors to the lowest.*/
+select title_name, count(au_id) as "Number of Authors" from title_authors
+    inner join titles using (title_id) group by title_name
+    order by count(au_id) desc;
+
+/*41 - You hear that the zip code functionally determines the city and state, so you decide to try that
+theory out on the authors table to see if there are any cases where the same zip code has more
+than one city or state. Devise a query to see whether that's true or not.*/
+SELECT ZIP, COUNT(CITY) AS NUMBER_OF_CITIES, COUNT(STATE) AS NUMBER_OF_STATES
+FROM AUTHORS
+GROUP BY ZIP;
+
+select zip, count(zip)
+from (select distinct city, state, zip
+      from authors) zippy
+group by zip
+having count(zip) > 1;
+
+/*42 - List all of the titles that do not have a royalty rate associated with them, either because the royalty
+rate is null, or because there is no corresponding royalty record for the given title*/
+SELECT TITLE_NAME
+FROM TITLES
+NATURAL JOIN ROYALTIES
+WHERE ROYALTY_RATE IS NULL;
