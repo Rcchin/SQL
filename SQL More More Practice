@@ -1,0 +1,52 @@
+/*1*/
+select au_lname, au_fname, sales, title_name
+from authors inner join title_authors using (au_id)
+             inner join titles using (title_id)
+where sales*price < (select (avg(sales*price)/2) from titles)
+order by sales desc;
+
+/*2*/
+(select state, 'Author Only' as "Which" from authors
+    where state not in (select state from authors intersect select state from publishers)
+union
+select state, 'Publisher Only' as "Which" from publishers
+     where state not in (select state from authors intersect select state from publishers)
+union
+select state, 'Author Only' as "Which" from authors
+    where state is null
+union
+select state, 'Publisher Only' as "Which" from publishers
+    where state is null) order by "Which",state;
+
+/*3*/
+select distinct au_lname, au_fname 
+from authors
+where au_id not in
+    (select au_id 
+     from authors inner join title_authors using (au_id)
+                  inner join titles using (title_id)
+     where year(pubdate) = 2013)
+order by au_fname, au_lname;
+
+/*4*/
+(select distinct au_lname, au_fname
+ from authors
+ except
+ select distinct au_lname, au_fname
+ from authors inner join title_authors using (au_id)
+              inner join titles using (title_id)
+ where year(pubdate) = 2013) order by au_fname, au_lname;
+
+/*5*/
+select au_fname, au_lname, pub_name, count(titles.PUB_ID)
+from authors inner join title_authors using(au_id)
+             inner join titles using (title_id)
+             inner join publishers pu using (pub_id)
+where au_id in
+    (select au_id
+     from authors inner join title_authors using(au_id)
+                  inner join titles using (title_id)
+                  inner join publishers using (pub_id)
+     group by au_id, publishers.PUB_ID
+     having count(titles.pub_id) > 2 and publishers.PUB_ID = pu.PUB_ID)
+group by au_fname, au_lname, pub_name;
