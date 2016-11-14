@@ -1,33 +1,35 @@
-/*25*/
+/*25*/ - Find the first name and last name of all authors who live in the same state as Sarah Buchman. (2)
 Select au_lname, au_fname from authors 
 where state = (Select state from authors where au_lname = 'Buchman'AND au_fname ='Sarah');
 
-/*26*/
+/*26*/ -  Find the title of all books that have less pages than "I Blame my Mother". (5)
 Select title_name
 FROM titles
 where pages < (Select pages from titles where title_name = 'I Blame My Mother');
 
-/*27*/
+/*27*/ -  Find the books that pay out a lower royalty rate than "Ask Your System Administrator". (5)
 Select title_name
 From titles inner join royalties using(title_id)
 where royalty_rate < (Select royalty_rate from royalties inner join titles using(title_id) where title_name = 'Ask Your System Administrator');
 
-/*28*/
+/*28*/ -  What is the title and price of the lowest priced book?
 Select Distinct title_name,price
 from titles
 where price =(Select MIN(price) from titles);
 
-/*29*/
+/*29*/ -  Show the title name, publication date, and the month number of all book published during an odd
+month. Give the month number a title of "Month Number". Order by the month number. (7)
 Select title_name,pubdate,MONTH(pubdate) as "Month Published" from titles
 where mod(MONTH(pubdate),2)!=0
 order by Month(pubdate);
 
-/*30*/
+/*30*/ - Show the title name, revenue (sales * price) for that book, the average revenue across all books
+for those books whose revenue is within $3,000,000 of the average of all books. (4)
 Select title_name, sales*price as revenue, (select avg(sales*price) from titles)
 from titles
 where abs((sales*price) - (Select avg(sales*price)from titles))<=3000000;
 
-/*31*/
+/*31*/ -  Find the publishers of all books that are the same type as "How About Never?" (2)
 Select Distinct pub_name 
 from publishers
 inner join titles using(pub_id)
