@@ -1,0 +1,315 @@
+create table Person(
+    fName   varchar(20) not null,
+    lName   varchar(20) not null,
+    birthDate date  not null,
+    
+    constraint pk_Person primary key (fName,lName,birthDate)
+);
+
+create table Customer(
+    customerID varchar(20) not null,
+    email varchar(20),
+    numberOfTimesVisited varchar(20),
+    fName varchar(20) not null,
+    lName varchar(20) not null,
+    birthDate date not null,
+    
+    constraint fk_Person_Customer foreign key(fName,lName,birthDate) references Person (fName,lName,birthDate)
+    constraint pk_Customer primary key(customerID),
+    
+    
+);
+
+create table Steady(
+    customerID varchar(20) not null,
+    loyaltyPoints varchar(20),
+    oilChangeFlag varchar(20),
+    
+    constraint fk_Customer_Steady foreign key(customerID) references Customer(customerID),
+    constraint pk_Steady primary key(customerID)
+    
+);
+
+create table Premier(
+    customerID varchar(20) not null,
+    totalCost varchar(20),
+    premierCost varchar(20),
+    monthlyFee varchar(20),
+    referalCount varchar(20),
+    
+    constraint fk_Customer_Premier foreign key(customerID) references Customer(customerID),
+    constraint pk_Premier primary key(customerID)
+);
+
+create table Individual(
+    customerID varchar(20) not null,
+    homeAddress varchar(50),
+    
+    constraint fk_Customer_Individual foreign key(customerID) references Customer(customerID),
+    constraint pk_Individual primary key (customerID)
+);
+
+/*accidentally mispelled "Coporation" <-drop this table*/
+create table Corporation(
+    customerID varchar(20) not null,
+    
+    constraint fk_Customer_Corporation foreign key(customerID) references Customer(customerID),
+    constraint pk_Coporation primary key(customerID)
+);
+
+create table Address(
+    customerID varchar(20) not null,
+    mailing varchar(20) not null,
+    billing varchar(20) not null,
+    vehiclePickup varchar(20) not null,
+    vehicleDelivery varchar(20) not null,
+    
+    constraint fk_Corporation_Address foreign key(customerID) references Corporation(customerID),
+    constraint pk_Address primary key(customerID,mailing,billing,vehiclePickup,vehicleDelivery)
+);
+
+create table MonthlyPayment(
+    customerID varchar(20) not null,
+    paymentDate date not null,
+    discoutAppliedFlag varchar(20),
+    
+    constraint fk_Premier_MonthlyPayment foreign key(customerID) references Premier(customerID),
+    constraint pk_Monthlypayment primary key(customerID,paymentDate)
+);
+
+create table Prospective(
+    fName varchar(20) not null,
+    lName varchar(20) not null,
+    birthDate date not null,
+    contactNum varchar(20),
+    contactDate date,
+    typeOfDealOffered varchar(20),
+    prospectiveID varchar(20) not null,
+
+    constraint fk_Person_Prospective foreign key(fName,lName,birthDate) references Person(fName,lName,birthDate),
+    constraint pk_Prospective primary key(prospectiveID)
+);
+
+create table deadProspect(
+    prospectiveID varchar(20) not null,
+    contactAmount varchar(20),
+    
+    constraint fk_Prospective_deadProspect foreign key(prospectiveID) references Prospective(prospectiveID),
+    constraint pk_deadProspect primary key(prospectiveID)
+);
+
+create table Referral(
+    customerID varchar(20) not null,
+    prospectiveID varchar(20) not null,
+    contactDate date not null,
+    
+    constraint fk_Customer_Referral foreign key(customerID) references Customer(customerID),
+    constraint fk_Prospective_Referral foreign key(prospectiveID) references Prospective(prospectiveID),
+    constraint pk_Referral primary key(customerID,prospectiveID,contactDate)
+);
+
+create table Employee(
+    employeeID varchar(20) not null,
+    fName varchar(20) not null,
+    lName varchar(20) not null,
+    birthDate date not null,
+    
+    constraint fk_Person_Employee foreign key(fName,lName,birthDate) references Person(fName,lName,birthDate),
+    constraint pk_Employee primary key(employeeID)
+);
+
+create table Week(
+    dateOfWeek date not null,
+    
+    constraint pk_Week primary key(dateOfWeek)
+);
+
+create table TimeCard(
+    hourlimitReached varchar(20),
+    dateOfWeek date not null,
+    employeeID varchar(20) not null,
+    totalHoursWorked varchar(20),
+    
+    constraint fk_Week_TimeCard foreign key(dateOfWeek) references Week(dateOfWeek),
+    constraint fk_Employee_TimeCard foreign key(employeeID) references Employee(employeeID),
+    constraint pk_TimeCard primary key(dateOfWeek, employeeID)
+);
+
+create table Mechanic(
+    employeeID varchar(20) not null,
+    hours varchar(20),
+    numberOfSkills varchar(20),
+    isEligibleToTeach varchar(20),
+    hourlyRate varchar(20),
+    
+    constraint fk_Employee_Mechanic foreign key(employeeID) references Employee(employeeID),
+    constraint pk_Mechanic primary key(employeeID)
+);
+
+create table Technician(
+    employeeID varchar(20) not null,
+    specialty varchar(20),
+    salary varchar(20),
+    
+    constraint fk_Employee_Technician foreign key(employeeID) references Employee(employeeID),
+    constraint pk_Technician primary key(employeeID)
+);
+
+create table Skill(
+    skillName varchar(20) not null,
+    
+    constraint pk_Skill primary key(skillName)
+);
+
+create table SkillAcquired(
+    menteeID varchar(20) not null,
+    skillName varchar(20) not null,
+    
+    constraint fk_Mechanic_SkillAcquired foreign key(menteeID) references Mechanic(employeeID),
+    constraint fk_Skill_SkillAcquired foreign key(skillName) references Skill(skillName),
+    constraint pk_SkillAcquired primary key(menteeID,skillName)
+);
+
+create table Mentoring(
+    mentorID varchar(20) not null,
+    menteeID varchar(20) not null,
+    skillName varchar(20) not null, 
+    startDate varchar(20),
+    endDate varchar(20),
+    
+    constraint fk_Mechanic_Mentoring foreign key(mentorID) references Mechanic(employeeID),
+    constraint fk_skillAcquired foreign key(menteeID,skillName) references SkillAcquired(menteeID,skillName),
+    constraint pk_Mentoring primary key(mentorID,menteeID,skillName)
+);
+
+create table Supplier(
+    supplierID varchar(20) not null,
+    suppName varchar(20),
+    address varchar(20),
+    phone varchar(20),
+    
+    constraint pk_Supplier primary key(supplierID)
+);
+
+create table Parts(
+    partID varchar(20) not null,
+    partName varchar(20),
+    suppName varchar(20),
+    partMGFR varchar(20),
+    
+    constraint pk_Parts primary key(partID)
+);
+
+create table SupplyPart(
+    supplierID varchar(20) not null,
+    partID varchar(20) not null,
+
+    constraint fk_Supplier_SupplyPart foreign key(supplierID) references Supplier(supplierID),
+    constraint fk_Parts_SupplyPart foreign key(partID) references Parts(partID),
+    constraint pk_SupplyPart primary key(supplierID,partID)
+);
+
+create table MaintenanceItems(
+    maintID varchar(20) not null,
+    cost varchar(20),
+    skillRequired varchar(20),
+    skillName varchar(20) not null,
+    
+    constraint fk_Skill_MaintenanceItems foreign key(skillName) references Skill(skillName),
+    constraint pk_MaintenanceItems primary key(maintID)
+);
+
+create table PartRequired(
+    partID varchar(20) not null,
+    maintID varchar(20) not null,
+    numberOrdered varchar(20) not null,
+    
+    constraint fk_Parts_PartRequired foreign key(partID) references Parts(partID),
+    constraint fk_MaintenanceItems_PartRequired foreign key(maintID) references MaintenanceItems(maintID),
+    constraint pk_PartRequired primary key(partID,maintID,numberOrdered)
+);
+
+create table Package(
+    maintID varchar(20) not null,
+    packageID varchar(20) not null,
+
+    constraint fk_MaintenanceItems_Package foreign key(maintID) references MaintenanceItems(maintID),
+    constraint pk_Package primary key(maintID,packageID)
+);
+
+create table PackageMember(
+    maintID varchar(20) not null,
+    packageID varchar(20) not null,
+    make varchar(20),
+    mileage varchar(20),
+    model varchar(20),
+    
+    constraint fk_MaintenanceItems_PackageMember foreign key(maintID) references MaintenanceItems(maintID),
+    constraint fk_Package_PackageMember foreign key(packageID) references Package(packageID)
+    constraint pk_PackageMember primary key(maintID,PackageID)
+);
+
+create table Vehicle(
+    customerID varchar(20) not null,
+    manufacturer varchar(20),
+    model varchar(20),
+    vin varchar(20) not null, 
+    yearOfCar date,
+    currentMileage varchar(20),
+    estimatedMileage varchar(20),
+    
+    constraint fk_Customer_Vehicle foreign key(customerID) references Customer(customerID),
+    constraint pk_Vehicle primary key(vin)
+);
+
+create table Appointment(
+    customerID varchar(20) not null,
+    vin varchar(20) not null,
+    appDate date not null,
+    totalPrice varchar(20),
+    loyaltyPointsEarned varchar(20),
+    loyaltyPointsUsed varchar(20),
+    waiveCostIfPremiere varchar(20),
+    couponUsed varchar(20),
+     
+    constraint fk_Customer_Appointment foreign key(customerID) references Customer(customerID),
+    constraint fk_Vehicle_Appointment foreign key(vin) references Vehicle(vin),
+    constraint pk_Appointment primary key(customerID,vin,appDate)
+);
+
+
+create table AppointmentLineItem(
+    employeeID varchar(20) not null,
+    maintID varchar(20) not null,
+    customerID varchar(20) not null,
+    vin varchar(20) not null,
+    appDate date not null,
+    quantity varchar(20),
+    
+    constraint fk_Mechanic_AppointmentLineItem foreign key(employeeID) references Mechanic(employeeID),
+    constraint fk_MaintenanceItems_AppointmentLineItem foreign key(maintID) references MaintenanceItems(maintID),
+    constraint fk_Appointment_AppointmentLineItem foreign key(customerID,vin,appDate) references Appointment(customerID,vin,appDate),
+    constraint pk_AppointmentLineItem primary key(maintID,customerID,vin,appDate)
+);
+
+create table MaintenanceVisitOrder(
+    employeeID varchar(20) not null,
+    appDate date not null,
+    customerID varchar(20) not null,
+    currentMileage varchar(20),
+    totalCostOfService varchar(20),
+    mileageForNextService varchar(20),
+    
+    constraint fk_Appointment_MaintenanceVisitOrder foreign key(appDate,customerID) references Appointment(appDate,customerID),
+    constraint fk_Technician_MaintenanceVisitOrder foreign key(employeeID) references Technician(employeeID),
+    constraint pk_MaintenanceVisitOrder primary key(employeeID,appDate,customerID)
+);
+
+
+
+
+
+
+
+
+drop table Skill;
