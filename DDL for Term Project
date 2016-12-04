@@ -14,8 +14,8 @@ create table Customer(
     lName varchar(20) not null,
     birthDate date not null,
     
-    constraint fk_Person_Customer foreign key(fName,lName,birthDate) references Person (fName,lName,birthDate)
-    constraint pk_Customer primary key(customerID),
+    constraint fk_Person_Customer foreign key(fName,lName,birthDate) references Person (fName,lName,birthDate),
+    constraint pk_Customer primary key(customerID)
     
     
 );
