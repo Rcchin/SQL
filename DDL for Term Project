@@ -234,7 +234,7 @@ create table Package(
     packageID varchar(20) not null,
 
     constraint fk_MaintenanceItems_Package foreign key(maintID) references MaintenanceItems(maintID),
-    constraint pk_Package primary key(maintID,packageID)
+    constraint pk_Package primary key(packageID)
 );
 
 create table PackageMember(
@@ -245,9 +245,11 @@ create table PackageMember(
     model varchar(20),
     
     constraint fk_MaintenanceItems_PackageMember foreign key(maintID) references MaintenanceItems(maintID),
-    constraint fk_Package_PackageMember foreign key(packageID) references Package(packageID)
-    constraint pk_PackageMember primary key(maintID,PackageID)
+    constraint fk_Package_PackageMember foreign key(packageID) references Package(packageID),
+    constraint pk_PackageMember primary key(maintID,packageID)
 );
+
+    
 
 create table Vehicle(
     customerID varchar(20) not null,
@@ -266,15 +268,17 @@ create table Appointment(
     customerID varchar(20) not null,
     vin varchar(20) not null,
     appDate date not null,
+    employeeID varchar(20) not null,
     totalPrice varchar(20),
     loyaltyPointsEarned varchar(20),
     loyaltyPointsUsed varchar(20),
     waiveCostIfPremiere varchar(20),
     couponUsed varchar(20),
-     
+    
+    constraint fk_Technician_Appointment foreign key(employeeID) references Technician(employeeID), 
     constraint fk_Customer_Appointment foreign key(customerID) references Customer(customerID),
     constraint fk_Vehicle_Appointment foreign key(vin) references Vehicle(vin),
-    constraint pk_Appointment primary key(customerID,vin,appDate)
+    constraint pk_Appointment primary key(customerID,vin,appDate,employeeID)
 );
 
 
@@ -290,19 +294,6 @@ create table AppointmentLineItem(
     constraint fk_MaintenanceItems_AppointmentLineItem foreign key(maintID) references MaintenanceItems(maintID),
     constraint fk_Appointment_AppointmentLineItem foreign key(customerID,vin,appDate) references Appointment(customerID,vin,appDate),
     constraint pk_AppointmentLineItem primary key(maintID,customerID,vin,appDate)
-);
-
-create table MaintenanceVisitOrder(
-    employeeID varchar(20) not null,
-    appDate date not null,
-    customerID varchar(20) not null,
-    currentMileage varchar(20),
-    totalCostOfService varchar(20),
-    mileageForNextService varchar(20),
-    
-    constraint fk_Appointment_MaintenanceVisitOrder foreign key(appDate,customerID) references Appointment(appDate,customerID),
-    constraint fk_Technician_MaintenanceVisitOrder foreign key(employeeID) references Technician(employeeID),
-    constraint pk_MaintenanceVisitOrder primary key(employeeID,appDate,customerID)
 );
 
 
