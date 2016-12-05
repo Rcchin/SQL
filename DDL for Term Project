@@ -13,6 +13,7 @@ create table Customer(
     fName varchar(20) not null,
     lName varchar(20) not null,
     birthDate date not null,
+    yearJoined date not null,
     
     constraint fk_Person_Customer foreign key(fName,lName,birthDate) references Person (fName,lName,birthDate),
     constraint pk_Customer primary key(customerID)
@@ -297,10 +298,93 @@ create table AppointmentLineItem(
 );
 
 
+insert into Person (fname,lname,birthdate) values ('Carlos','Lomeli','1995-12-29');
+insert into Person (fname,lname,birthdate) values ('John','Davis','1975-12-30');
+insert into Person (fname,lname,birthdate) values ('Ray','Chin','1805-12-29');
+insert into Person(fname,lname,birthdate) values ('Dave','Brown','2000-12-29');
+insert into Person (fname,lname,birthdate) values ('Luke','Skywalker','2005-12-29');
+insert into Person (fname,lname,birthdate) values ('Turk','Bryant','1995-7-29');
+insert into Person (fname,lname,birthdate) values ('Lebron','James','2004-12-29');
+insert into Person (fname,lname,birthdate) values ('Jimmy','Neutron','1987-12-29');
+insert into Person (fname,lname,birthdate) values ('Tom','James','2004-12-30');
+insert into Person (fname,lname,birthdate) values ('Tom','Nguyen','2016-12-29');
+insert into Person (fname,lname,birthdate) values ('Jill','Nguyen','2000-8-29');
+insert into Person(fname,lname,birthdate) values ('Karen','Lopez','1996-12-19');
+insert into Person (fname,lname,birthdate) values ('Marisol','Garcia','2000-12-27');
+insert into Person(fname,lname,birthdate) values ('Sarah','Waller','2016-12-29');
+insert into Person (fname,lname,birthdate) values ('john','Dorian','1966-12-29');
+insert into Person (fname,lname,birthdate) values ('Chris','Turk','1995-3-29');
+insert into Person (fname,lname,birthdate) values ('Carla','James','2004-12-12');
+insert into Person (fname,lname,birthdate) values ('Perry','Cox','1970-12-29');
+insert into Person (fname,lname,birthdate) values ('Bob','Kelso','1940-12-30');
+insert into Person (fname,lname,birthdate) values ('Elliot','Reid','1944-12-29');
+insert into Person (fname,lname,birthdate) values ('Matt','Fox','1802-8-29');
+insert into Person (fname,lname,birthdate) values ('Pete','Pikle','1966-12-19');
+insert into Person (fname,lname,birthdate) values ('Lou','Williams','1970-12-27');
+insert into Person(fname,lname,birthdate) values ('Sarh','Walle','1976-12-29');
 
 
 
 
+insert into Employee (employeeID,fname,lname,birthdate) values ('1','Carlos','Lomeli','1995-12-29');
+insert into Employee (employeeID,fname,lname,birthdate) values ('2','John','Davis','1975-12-30');
+insert into Employee (employeeID,fname,lname,birthdate) values ('3','Ray','Chin','1805-12-29');
+insert into Employee (employeeID,fname,lname,birthdate) values ('4','Dave','Brown','2000-12-29');
+insert into Employee (employeeID ,fname,lname,birthdate)values ('5','Lou','Williams','1970-12-27');
+insert into Employee (employeeID,fname,lname,birthdate) values ('6','Turk','Bryant','1995-7-29');
+
+insert into Technician(employeeID,specialty,salary) values('1','fixing dying cars','300,000');
+insert into Technician(employeeID,specialty,salary) values('2','wheels','50,000');
+insert into Technician(employeeID,specialty,salary) values('3','engines','89,000');
+
+insert into Mechanic(employeeID,hours,numberOfSkills,isEligibletoTeach,hourlyRate) values ('4','5','2','no','12.50');
+insert into Mechanic(employeeID,hours,numberOfSkills,isEligibletoTeach,hourlyRate) values ('5','5','4','yes','20.00');
+insert into Mechanic(employeeID,hours,numberOfSkills,isEligibletoTeach,hourlyRate) values ('6','7','6','yes','22.25');
+
+insert into Timecard(hourimitReached,dateOfWeek,employeeID,totalHoursWorked) values ('no','2016-4-12','1','22');
+insert into Timecard(hourimitReached,dateOfWeek,employeeID,totalHoursWorked) values ('yes','2016-4-12','2','18');
+insert into Timecard(hourimitReached,dateOfWeek,employeeID,totalHoursWorked) values ('yes','2016-4-12','3','15');
+insert into Timecard(hourimitReached,dateOfWeek,employeeID,totalHoursWorked) values ('yes','2016-4-12','4','25');
+insert into Timecard(hourimitReached,dateOfWeek,employeeID,totalHoursWorked) values ('no','2016-4-12','5','17');
+insert into Timecard(hourimitReached,dateOfWeek,employeeID,totalHoursWorked) values ('no','2016-4-12','6','10');
 
 
-drop table Skill;
+insert into Skill(skillName) values('oil change');
+insert into Skill(skillName) values('air conditioning');
+insert into Skill(skillName) values('brakes');
+insert into Skill(skillName) values('front end');
+insert into Skill(skillName) values('transmission');
+
+insert into SkillAcquired(menteeID,skillName) values('6','brakes');
+insert into SkillAcquired(menteeID,skillName) values('5','front end');
+
+insert into Mentoring(mentorID,menteeID,skillName,startDate,endDate) values ('5','6','brakes','2016-15-8','2016-30-8');
+insert into Mentoring(mentorID,menteeID,skillName,startDate,endDate) values ('6','5','front end','2016-01-9', '2016-10-9');
+
+insert into MaintenanceItems(maintID,cost,skillRequired,skillName) values  ('10','10.00','air conditioning','air conditioning');
+insert into MaintenanceItems(maintID,cost,skillRequired,skillName) values ('11','15.00','oil change','oil change');
+insert into MaintenanceItems(maintID,cost,skillRequired,skillName) values ('12','25.00','front end', 'front end');
+insert into MaintenanceItems(maintID,cost,skillRequired,skillName) values('13','30.00','transmission','transmission');
+insert into MaintenanceItems(maintID,cost,skillRequired,skillName) values('14','35.00','brakes','brakes');
+
+insert into Package(maintID,packageID) values('10','20');
+insert into Package(maintID,packageID) values('11','21');
+insert into Package(maintID,packageID) values('12','22');
+insert into Package(maintID,packageID) values('13','23');
+insert into Package(maintID,packageID) values('14','24');
+
+insert into PackageMember(maintID,packageID,make,model,mileage) values('10','20','Toyota','Prius','50,000');
+insert into PackageMember(maintID,packageID,make,model,mileage) values('14','24','Ferrari','La Ferrari','25,000');
+insert into PackageMember(maintID,packageID,make,model,mileage) values('13','23','Aston Martin', 'Vulcan','20,000');
+
+insert into Supplier(supplierID,suppName,address,phone) values('30','McDonalds','5123 Apple Street','909-094-2300');
+insert into Supplier(supplierID,suppName,address,phone) values('31','City Wok','4213 China Street','890-423-2120');
+
+insert into Parts(partID,partName,partMGFR) values('40','wheels','12313');
+insert into Parts(partID,partName,partMGFR) values('41','front/back bumper','59510');
+
+insert into SupplyPart(supplierID,partID) values('31','40');
+insert into SupplyPart(supplierID,partID) values('30','41');
+
+insert into PartRequired(partID,maintID,numberOrdered) values('40','13','2');
+insert into PartRequired(partID,maintID,numberOrdered) values('41','14','4');
